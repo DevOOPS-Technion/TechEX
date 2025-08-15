@@ -4,8 +4,8 @@ Description: 'TechEX | Parcel Management System with 2 AZs for Midterm Project'
 Parameters:
   ImageURI:
     Type: String
-    Default: "ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/techex:latest"
-    Description: ECR image location for TechEX app
+    Default: ""
+    Description: ECR image URI for TechEX app (e.g., ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/techex-web:latest)
 
 Resources:
   # ===== NETWORKING SETUP =====
@@ -131,41 +131,46 @@ Resources:
 
   # ===== INSTANCE TEMPLATE =====
   # This is what defines how our TechEX servers will be built
+  # NOTE: IAM creation is disabled in sandbox. We will use the pre-created LabInstanceProfile.
   TechEXLT:
     Type: AWS::EC2::LaunchTemplate
     Properties:
       LaunchTemplateName: TechEX-LT
       LaunchTemplateData:
         ImageId: ami-0c02fb55956c7d316
-        InstanceType: t3.micro
+        InstanceType: t3.small
         SecurityGroupIds:
           - !Ref TechEXEC2SG  
+        IamInstanceProfile:
+          Name: LabInstanceProfile
         UserData:
           Fn::Base64: !Sub |
             #!/bin/bash
-            
-            # run updates and install docker and git
+            # Update and install dependencies
             yum update -y
-            yum install -y docker git
+            yum install -y docker unzip
             
             # enable docker and add ec2-user to the docker group
             service docker start
             chkconfig docker on
             usermod -a -G docker ec2-user
             
-            # sleep for 15 seconds to allow docker to start
-            sleep 15
+            # Install AWS CLI v2 (ensures ecr get-login-password is available)
+            cd /root
+            curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip -q awscliv2.zip
+            ./aws/install
             
-            # clone the repo
-            cd /home/ec2-user
-            git clone https://github.com/DevOOPS-Technion/TechEX.git
-            cd TechEX
+            # Login to ECR and pull image
+            REGION=${AWS::Region}
+            REGISTRY=$(echo ${ImageURI} | cut -d'/' -f1)
+            aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $REGISTRY
             
-            # build the docker image
-            docker build -f docker/Dockerfile -t techex-web .
-            
-            # run the docker image
-            docker run -d -p 5000:5000 --name techex-web
+            # Pull and run container from ECR
+            IMAGE_URI=${ImageURI}
+            docker pull $IMAGE_URI
+            docker rm -f techex-web 2>/dev/null || true
+            docker run -d -p 5000:5000 --restart unless-stopped --name techex-web $IMAGE_URI
             
             # sleep for 30 seconds to allow the app to start
             sleep 30

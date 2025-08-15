@@ -1,134 +1,60 @@
 # TechEX AWS Deployment Guide
 
-This guide will help you deploy the TechEX application to AWS using CloudFormation.
+This guide deploys TechEX to AWS using CloudFormation and an Application Load Balancer. The script builds a Docker image locally, pushes it to ECR, and then deploys a stack that pulls and runs the image on EC2 instances.
 
 ## Prerequisites
+- AWS CLI v2
+- Docker (running locally)
+- PowerShell 5.1+ or PowerShell 7
+- Temporary AWS credentials (sandbox) in `us-east-1` or `us-west-2`
 
-1. **AWS CLI** - Install from [https://aws.amazon.com/cli/](https://aws.amazon.com/cli/)
-2. **PowerShell** - Windows PowerShell 5.1 or later
-3. **AWS Credentials** - Temporary credentials with appropriate permissions
-
-## Quick Start
-
-### 1. Set AWS Credentials in PowerShell
-
-Open PowerShell and set your AWS credentials:
-
+## Credentials (PowerShell)
 ```powershell
-$env:AWS_ACCESS_KEY_ID="your_access_key"
-$env:AWS_SECRET_ACCESS_KEY="your_secret_key"
-$env:AWS_SESSION_TOKEN="your_session_token"
+$env:AWS_ACCESS_KEY_ID="<key>"
+$env:AWS_SECRET_ACCESS_KEY="<secret>"
+$env:AWS_SESSION_TOKEN="<session>"
 ```
 
-### 2. Run Deployment
-
-#### Option A: Using the Batch File (Recommended)
-Double-click `deploy-techex.bat` in the `aws/` directory.
-
-#### Option B: Using PowerShell Directly
+## One-command deploy (WIN)
 ```powershell
 cd aws
 .\deploy-techex.ps1
 ```
+The script will:
+- Build `techex-web:latest` from `docker/Dockerfile`
+- Ensure ECR repository `techex-web` exists and push the image
+- Deploy CloudFormation stack `techex-stack` with `ImageURI=<your ECR image>`
+- Wait for completion and print the ALB URL
+- Print Target Group health for quick diagnosis
 
-## What Gets Deployed
+## What the stack creates (`cf-techex.yaml`)
+- VPC (10.10.0.0/16) with 2 public subnets in different AZs
+- Internet Gateway + routing
+- Security groups for ALB (80) and EC2 (5000, 22)
+- Application Load Balancer → Target Group (port 5000)
+- Target Group health check: `GET /health`, success codes `200-399`
+- Launch Template with UserData that logs into ECR and runs your image
+- Auto Scaling Group (2-4 instances)
+- Uses sandbox’s pre-created `LabInstanceProfile` (no custom IAM creation)
 
-The CloudFormation template (`cf-techex.yaml`) creates:
-
-- **VPC** with CIDR `10.10.0.0/16`
-- **2 Subnets** in `us-east-1a` and `us-east-1b`
-- **Internet Gateway** for external access
-- **Security Groups** for load balancer and EC2 instances
-- **Application Load Balancer** distributing traffic
-- **Auto Scaling Group** with 2-4 instances
-- **Launch Template** that builds TechEX from GitHub
-
-## Architecture
-
-```
-Internet → Load Balancer → EC2 Instances (2+)
-                    ↓
-            Auto Scaling Group
-                    ↓
-        [us-east-1a] [us-east-1b]
-```
-
-## Deployment Process
-
-1. **Validation** - Checks AWS CLI and credentials
-2. **Account Verification** - Gets AWS Account ID
-3. **Stack Deployment** - Creates CloudFormation stack
-4. **Monitoring** - Waits for stack completion
-5. **Output** - Provides application URL
-
-## Expected Timeline
-
-- **Stack Creation**: 10-15 minutes
-- **Instance Health**: 5-10 minutes after stack completion
-- **Total Time**: 15-25 minutes
-
-## Monitoring
-
-During deployment, the script will show:
-- ✅ Success indicators
-- ⏳ Progress updates
-- ❌ Error messages
-- 🌐 Final application URL
+## Region
+- Default is `us-east-1`. You can change `$region` in `deploy-techex.ps1` to `us-west-2` if needed.
 
 ## Troubleshooting
+- 502 at ALB URL? Give it a minute. Check printed target health.
+- Stuck stack (ROLLBACK_COMPLETE)? The script will delete and redeploy automatically.
+- Verify the image exists in ECR and the `ImageURI` matches the pushed tag (`latest`).
 
-### Common Issues
-
-1. **AWS CLI Not Found**
-   - Install AWS CLI from official website
-   - Restart PowerShell after installation
-
-2. **Missing Credentials**
-   - Set all three environment variables
-   - Check if credentials are expired
-
-3. **Template Errors**
-   - Verify `cf-techex.yaml` exists
-   - Check CloudFormation console for detailed errors
-
-4. **Stack Creation Fails**
-   - Check AWS Console for error details
-   - Verify account has necessary permissions
-
-### Useful Commands
-
+## Useful commands
 ```powershell
-# Check stack status
-aws cloudformation describe-stacks --stack-name techex-stack --region us-east-1
+# Show stack events
+aws cloudformation describe-stack-events --stack-name techex-stack --region us-east-1 | cat
 
-# Delete stack if needed
-aws cloudformation delete-stack --stack-name techex-stack --region us-east-1
+# Delete stack
+aws cloudformation delete-stack --stack-name techex-stack --region us-east-1 | cat
 
-# List all stacks
-aws cloudformation list-stacks --region us-east-1
+# Describe target health (when you have the TG ARN)
+aws elbv2 describe-target-health --target-group-arn <tg-arn> --region us-east-1 | cat
 ```
 
-## Security Notes
-
-- EC2 instances are in private subnets
-- Load balancer is internet-facing
-- SSH access (port 22) is open for debugging
-- Application runs on port 5000 internally
-
-## Cost Optimization
-
-- Uses `t3.medium` instances (cost-effective)
-- Auto-scaling between 2-4 instances
-- Consider stopping instances when not in use
-
-## Support
-
-If you encounter issues:
-1. Check the AWS CloudFormation console
-2. Review CloudWatch logs
-3. Verify all prerequisites are met
-4. Check AWS service limits in your account
-
----
-
-**Note**: This deployment creates production-ready infrastructure. Monitor costs and usage in your AWS account.
+Tip: This sandbox pre-creates `LabInstanceProfile` and restricts services/regions. The template is compliant.
