@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+
+{% block title %}TechEX - Parcel Tracking System{% endblock %}
+
+{% block content %}
+<!-- Welcome Hero Section -->
+<div class="hero min-h-[50vh] glass-card rounded-box shadow-2xl mb-12">
+    <div class="hero-content text-center text-neutral-content" style="position: relative; z-index: 1;">
+        <div class="max-w-lg">
+            <div class="mb-6">
+                <!-- Theme-aware logo for homepage -->
+                <div class="logo-container-hero">
+                    <img src="{{ url_for('static', filename='TechEX_light.png') }}" 
+                         alt="TechEX Logo" 
+                         class="logo-image-hero theme-light">
+                    <img src="{{ url_for('static', filename='TechEX_dark.png') }}" 
+                         alt="TechEX Logo" 
+                         class="logo-image-hero theme-dark hidden">
+                </div>
+            </div>
+            <div class="flex gap-3 justify-center flex-wrap">
+                <a href="{{ url_for('add_parcel') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus mr-2"></i>
+                    Add Parcel
+                </a>
+                <a href="{{ url_for('list_parcels') }}" class="btn btn-outline btn-lg">
+                    <i class="fas fa-list mr-2"></i>
+                    View All
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats Overview -->
+<div class="stats stats-vertical lg:stats-horizontal shadow-xl w-full mb-12 bg-base-200 home-stats">
+    <div class="stat">
+        <div class="stat-figure text-primary">
+            <i class="fas fa-boxes text-3xl"></i>
+        </div>
+        <div class="stat-title">Total Parcels</div>
+        <div class="stat-value text-primary">{{ parcels|length if parcels else 0 }}</div>
+        <div class="stat-desc">Active shipments</div>
+    </div>
+    
+    <div class="stat">
+        <div class="stat-figure text-success">
+            <i class="fas fa-check-circle text-3xl"></i>
+        </div>
+        <div class="stat-title">Delivered</div>
+        <div class="stat-value text-success">
+            {% set delivered_count = parcels|selectattr("status", "equalto", "delivered")|list|length if parcels else 0 %}
+            {{ delivered_count }}
+        </div>
+        <div class="stat-desc">
+            {% if parcels|length > 0 %}
+                {{ "%.0f"|format((delivered_count / parcels|length) * 100) }}% delivery rate
+            {% else %}
+                0% delivery rate
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="stat">
+        <div class="stat-figure text-warning">
+            <i class="fas fa-clock text-3xl"></i>
+        </div>
+        <div class="stat-title">Pending</div>
+        <div class="stat-value text-warning">
+            {% set pending_count = parcels|selectattr("status", "equalto", "pending")|list|length if parcels else 0 %}
+            {{ pending_count }}
+        </div>
+        <div class="stat-desc">In transit</div>
+    </div>
+    
+    <div class="stat">
+        <div class="stat-figure text-accent">
+            <i class="fas fa-shekel-sign text-3xl"></i>
+        </div>
+        <div class="stat-title">Total Value</div>
+        <div class="stat-value text-accent">
+            {% set total_cost = parcels|sum(attribute='cost') if parcels else 0 %}
+            ₪{{ "%.0f"|format(total_cost) }}
+        </div>
+        <div class="stat-desc">
+            {% if parcels|length > 0 %}
+                ₪{{ "%.2f"|format(total_cost / parcels|length) }} avg
+            {% else %}
+                ₪0 avg
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+    <!-- Add Parcel -->
+    <div class="card glass-grad-card glass-grad-primary shadow-xl card-hover">
+        <div class="card-body text-center">
+            <div class="text-5xl text-primary mb-4">
+                <i class="fas fa-plus-circle"></i>
+            </div>
+            <h3 class="card-title justify-center mb-2 text-primary">Add New Parcel</h3>
+            <p class="text-sm text-base-content/80 mb-4">Register a new package for tracking</p>
+            <a href="{{ url_for('add_parcel') }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus mr-2"></i>Add Parcel
+            </a>
+        </div>
+    </div>
+
+    <!-- View Parcels -->
+    <div class="card glass-grad-card glass-grad-secondary shadow-xl card-hover">
+        <div class="card-body text-center">
+            <div class="text-5xl text-secondary mb-4">
+                <i class="fas fa-list-ul"></i>
+            </div>
+            <h3 class="card-title justify-center mb-2 text-secondary">Manage Parcels</h3>
+            <p class="text-sm text-base-content/80 mb-4">View, edit, and track all packages</p>
+            <a href="{{ url_for('list_parcels') }}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-list mr-2"></i>View All
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="card glass-grad-card glass-grad-accent shadow-xl card-hover">
+        <div class="card-body text-center">
+            <div class="text-5xl text-accent mb-4">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h3 class="card-title justify-center mb-2 text-accent">View Analytics</h3>
+            <p class="text-sm text-base-content/80 mb-4">Insights and shipping statistics</p>
+            <a href="{{ url_for('statistics') }}" class="btn btn-accent btn-sm">
+                <i class="fas fa-chart-bar mr-2"></i>Statistics
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity (Only if parcels exist) -->
+{% if parcels and parcels|length > 0 %}
+<div class="card glass-card shadow-xl">
+    <div class="card-body">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="card-title text-2xl">
+                <i class="fas fa-clock-rotate-left mr-2 text-info"></i>
+                Recent Activity
+            </h2>
+            <a href="{{ url_for('list_parcels') }}" class="btn btn-outline btn-sm">
+                View All
+                <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="table table-zebra">
+                <thead>
+                    <tr>
+                        <th>Tracking</th>
+                        <th>Receiver</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for parcel in parcels[-3:] %}
+                    <tr class="hover">
+                        <td>
+                            <code class="text-primary font-bold tracking-number" 
+                                  onclick="navigateToEdit('{{ parcel.id }}')" 
+                                  title="Click to edit parcel">
+                                {{ parcel.tracking_number }}
+                            </code>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-user text-primary/80"></i>
+                                <span class="font-medium">{{ parcel.receiver }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            {% if parcel.status == 'delivered' %}
+                                <div class="badge badge-success badge-sm gap-1">
+                                    <i class="fas fa-check"></i>
+                                    Delivered
+                                </div>
+                            {% else %}
+                                <div class="badge badge-warning badge-sm gap-1">
+                                    <i class="fas fa-clock"></i>
+                                    Pending
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td class="text-sm">{{ parcel.dispatch_date }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<!-- Empty State -->
+<div class="card glass-card shadow-xl">
+    <div class="card-body text-center py-16">
+        <div class="text-6xl text-base-content/30 mb-4">
+            <i class="fas fa-inbox"></i>
+        </div>
+        <h3 class="text-2xl font-bold mb-2">No Parcels Yet</h3>
+        <p class="text-base-content/70 mb-6">Start by adding your first parcel to track</p>
+        <a href="{{ url_for('add_parcel') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-plus mr-2"></i>
+            Add Your First Parcel
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<style>
+.home-stats .stat { align-items: center; text-align: center; }
+.home-stats .stat-figure { justify-self: center; }
+.home-stats .stat-title, .home-stats .stat-value, .home-stats .stat-desc { justify-self: center; }
+
+.card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.stats {
+    background: linear-gradient(135deg, hsl(var(--b2)) 0%, hsl(var(--b3)) 100%);
+}
+
+/* Fix outline button text in light mode - main page */
+[data-theme="light"] .btn-outline {
+    color: #1f2937 !important;
+    border-color: rgba(31, 41, 55, 0.5) !important;
+}
+
+[data-theme="light"] .btn-outline:hover {
+    color: white !important;
+    background-color: #6366f1 !important;
+    border-color: #6366f1 !important;
+}
+
+
+
+
+
+/* Hero section glass enhancement */
+.hero.glass-card {
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.1),
+        0 0 30px rgba(255, 255, 255, 0.1) inset;
+}
+
+[data-theme="dark"] .hero.glass-card {
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.3),
+        0 0 30px rgba(255, 255, 255, 0.05) inset;
+}
+
+.hero.glass-card:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(800px 300px at 20% 20%, rgba(255, 255, 255, 0.15), transparent),
+        radial-gradient(600px 600px at 80% 80%, rgba(0, 0, 0, 0.1), transparent);
+    mix-blend-mode: overlay;
+    pointer-events: none;
+}
+
+[data-theme="dark"] .hero.glass-card:before {
+    background: 
+        radial-gradient(800px 300px at 20% 20%, rgba(255, 255, 255, 0.08), transparent),
+        radial-gradient(600px 600px at 80% 80%, rgba(0, 0, 0, 0.2), transparent);
+}
+
+/* Hero logo styling */
+.logo-container-hero {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.logo-image-hero {
+    height: 120px;
+    width: auto;
+    max-width: 300px;
+    object-fit: contain;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+.logo-image-hero:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.2));
+}
+
+[data-theme="dark"] .logo-image-hero:hover {
+    filter: drop-shadow(0 6px 12px rgba(255, 255, 255, 0.3));
+}
+
+@media (max-width: 768px) {
+    .hero-content {
+        padding: 2rem 1rem;
+    }
+    
+    .stats {
+        flex-direction: column;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .logo-image-hero {
+        height: 90px;
+        max-width: 220px;
+    }
+}
+</style>
+
+<script>
+// Page initialization
+document.addEventListener('DOMContentLoaded', function() {
+    // Remove loading state if present
+    document.body.classList.remove('loading');
+});
+</script>
+{% endblock %}

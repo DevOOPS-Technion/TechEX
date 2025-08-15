@@ -1,0 +1,681 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles for TechEX */
+:root {
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* Smooth animations */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+/* Modern pill navbar with enhanced glassmorphism */
+.navbar-pill {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50px;
+  margin: 1rem auto;
+  padding: 0.75rem 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15), 
+              0 0 40px rgba(255, 255, 255, 0.1) inset;
+  max-width: 1200px;
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Glass card style for other content areas */
+.glass-card {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] .glass-card {
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.navbar-pill:hover {
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2), 
+              0 0 50px rgba(255, 255, 255, 0.15) inset;
+}
+
+[data-theme="dark"] .navbar-pill {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 
+              0 0 40px rgba(255, 255, 255, 0.05) inset;
+}
+
+[data-theme="dark"] .navbar-pill:hover {
+  background: rgba(0, 0, 0, 0.35);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 
+              0 0 50px rgba(255, 255, 255, 0.08) inset;
+}
+
+/* Enhanced navigation button spacing and effects */
+.nav-btn {
+  margin: 0 0.25rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+[data-theme="dark"] .nav-btn {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .nav-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Logo styling */
+.logo-container {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.logo-image {
+  height: 32px;
+  width: auto;
+  max-width: 120px;
+  transition: all 0.3s ease;
+  object-fit: contain;
+}
+
+.logo-image:hover {
+  transform: scale(1.05);
+}
+
+/* Theme-aware logo visibility */
+[data-theme="light"] .theme-dark {
+  display: none !important;
+}
+
+[data-theme="light"] .theme-light {
+  display: block !important;
+}
+
+[data-theme="dark"] .theme-light {
+  display: none !important;
+}
+
+[data-theme="dark"] .theme-dark {
+  display: block !important;
+}
+
+/* Hero logo theme visibility */
+[data-theme="light"] .logo-image-hero.theme-dark {
+  display: none !important;
+}
+
+[data-theme="dark"] .logo-image-hero.theme-light {
+  display: none !important;
+}
+
+/* Card hover effects with glassmorphism */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.card-hover:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2), 
+              0 0 30px rgba(255, 255, 255, 0.1) inset;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+}
+
+[data-theme="dark"] .card-hover {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .card-hover:hover {
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4), 
+              0 0 30px rgba(255, 255, 255, 0.05) inset;
+}
+
+/* Gradient backgrounds */
+.gradient-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+[data-theme="dark"] .gradient-bg {
+  background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+}
+
+/* Pulse animation for success elements */
+.pulse-success {
+  animation: pulseSuccess 2s infinite;
+}
+
+@keyframes pulseSuccess {
+  0%, 100% { 
+    transform: scale(1); 
+  }
+  50% { 
+    transform: scale(1.05); 
+  }
+}
+
+/* Form error styling */
+.input-error {
+  border-color: hsl(var(--er)) !important;
+  background-color: hsl(var(--er) / 0.1) !important;
+}
+
+/* Stats component styling with glassmorphism */
+.stats {
+  background: linear-gradient(135deg, hsl(var(--b2)) 0%, hsl(var(--b3)) 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 
+              0 0 20px rgba(255, 255, 255, 0.1) inset;
+}
+
+[data-theme="dark"] .stats {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 
+              0 0 20px rgba(255, 255, 255, 0.05) inset;
+}
+
+/* Enhanced card styling with glassmorphism */
+.card {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] .card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* More gradient look for boxes/cards globally */
+.card {
+  background-image: linear-gradient(135deg, color-mix(in oklab, var(--color-base-200) 92%, transparent) 0%, color-mix(in oklab, var(--color-base-300) 92%, transparent) 100%);
+}
+[data-theme="dark"] .card {
+  background-image: linear-gradient(135deg, color-mix(in oklab, var(--color-base-200) 25%, #0000) 0%, color-mix(in oklab, var(--color-base-300) 25%, #0000) 100%);
+}
+
+/* Colored glass effects using DaisyUI color variables */
+.from-primary\/20 {
+  background: hsl(var(--p) / 0.15) !important;
+  border: 1px solid hsl(var(--p) / 0.3) !important;
+  box-shadow: 0 8px 32px hsl(var(--p) / 0.2), 
+              0 0 20px hsl(var(--p) / 0.1) inset !important;
+  color: hsl(var(--p)) !important;
+}
+
+.from-primary\/20 h3,
+.from-primary\/20 .card-title {
+  color: hsl(var(--p)) !important;
+}
+
+.from-success\/20 {
+  background: hsl(var(--su) / 0.15) !important;
+  border: 1px solid hsl(var(--su) / 0.3) !important;
+  box-shadow: 0 8px 32px hsl(var(--su) / 0.2), 
+              0 0 20px hsl(var(--su) / 0.1) inset !important;
+  color: hsl(var(--su)) !important;
+}
+
+.from-success\/20 h3,
+.from-success\/20 .card-title {
+  color: hsl(var(--su)) !important;
+}
+
+.from-warning\/20 {
+  background: hsl(var(--wa) / 0.15) !important;
+  border: 1px solid hsl(var(--wa) / 0.3) !important;
+  box-shadow: 0 8px 32px hsl(var(--wa) / 0.2), 
+              0 0 20px hsl(var(--wa) / 0.1) inset !important;
+  color: hsl(var(--wa)) !important;
+}
+
+.from-warning\/20 h3,
+.from-warning\/20 .card-title {
+  color: hsl(var(--wa)) !important;
+}
+
+.from-secondary\/20 {
+  background: hsl(var(--s) / 0.15) !important;
+  border: 1px solid hsl(var(--s) / 0.3) !important;
+  box-shadow: 0 8px 32px hsl(var(--s) / 0.2), 
+              0 0 20px hsl(var(--s) / 0.1) inset !important;
+  color: hsl(var(--s)) !important;
+}
+
+.from-secondary\/20 h3,
+.from-secondary\/20 .card-title {
+  color: hsl(var(--s)) !important;
+}
+
+.from-accent\/20 {
+  background: hsl(var(--a) / 0.15) !important;
+  border: 1px solid hsl(var(--a) / 0.3) !important;
+  box-shadow: 0 8px 32px hsl(var(--a) / 0.2), 
+              0 0 20px hsl(var(--a) / 0.1) inset !important;
+  color: hsl(var(--a)) !important;
+}
+
+.from-accent\/20 h3,
+.from-accent\/20 .card-title {
+  color: hsl(var(--a)) !important;
+}
+
+/* Dark theme colored glass using DaisyUI variables */
+[data-theme="dark"] .from-primary\/20 {
+  background: hsl(var(--p) / 0.25) !important;
+  border: 1px solid hsl(var(--p) / 0.4) !important;
+  box-shadow: 0 8px 32px hsl(var(--p) / 0.3), 
+              0 0 25px hsl(var(--p) / 0.15) inset !important;
+  color: hsl(var(--pc)) !important;
+}
+
+[data-theme="dark"] .from-primary\/20 h3,
+[data-theme="dark"] .from-primary\/20 .card-title {
+  color: hsl(var(--pc)) !important;
+}
+
+[data-theme="dark"] .from-success\/20 {
+  background: hsl(var(--su) / 0.25) !important;
+  border: 1px solid hsl(var(--su) / 0.4) !important;
+  box-shadow: 0 8px 32px hsl(var(--su) / 0.3), 
+              0 0 25px hsl(var(--su) / 0.15) inset !important;
+  color: hsl(var(--suc)) !important;
+}
+
+[data-theme="dark"] .from-success\/20 h3,
+[data-theme="dark"] .from-success\/20 .card-title {
+  color: hsl(var(--suc)) !important;
+}
+
+[data-theme="dark"] .from-warning\/20 {
+  background: hsl(var(--wa) / 0.25) !important;
+  border: 1px solid hsl(var(--wa) / 0.4) !important;
+  box-shadow: 0 8px 32px hsl(var(--wa) / 0.3), 
+              0 0 25px hsl(var(--wa) / 0.15) inset !important;
+  color: hsl(var(--wac)) !important;
+}
+
+[data-theme="dark"] .from-warning\/20 h3,
+[data-theme="dark"] .from-warning\/20 .card-title {
+  color: hsl(var(--wac)) !important;
+}
+
+[data-theme="dark"] .from-secondary\/20 {
+  background: hsl(var(--s) / 0.25) !important;
+  border: 1px solid hsl(var(--s) / 0.4) !important;
+  box-shadow: 0 8px 32px hsl(var(--s) / 0.3), 
+              0 0 25px hsl(var(--s) / 0.15) inset !important;
+  color: hsl(var(--sc)) !important;
+}
+
+[data-theme="dark"] .from-secondary\/20 h3,
+[data-theme="dark"] .from-secondary\/20 .card-title {
+  color: hsl(var(--sc)) !important;
+}
+
+[data-theme="dark"] .from-accent\/20 {
+  background: hsl(var(--a) / 0.25) !important;
+  border: 1px solid hsl(var(--a) / 0.4) !important;
+  box-shadow: 0 8px 32px hsl(var(--a) / 0.3), 
+              0 0 25px hsl(var(--a) / 0.15) inset !important;
+  color: hsl(var(--ac)) !important;
+}
+
+[data-theme="dark"] .from-accent\/20 h3,
+[data-theme="dark"] .from-accent\/20 .card-title {
+  color: hsl(var(--ac)) !important;
+}
+
+/* Enhanced gradient card backgrounds */
+.bg-gradient-to-br {
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-gradient-to-br::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  pointer-events: none;
+}
+
+[data-theme="dark"] .bg-gradient-to-br::before {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+}
+
+/* Clickable tracking numbers */
+.tracking-number {
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.tracking-number:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+[data-theme="dark"] .tracking-number {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .tracking-number:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Enhanced input styling with glassmorphism */
+.input, .select, .textarea {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.input:focus, .select:focus, .textarea:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2) inset;
+}
+
+[data-theme="dark"] .input,
+[data-theme="dark"] .select,
+[data-theme="dark"] .textarea {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .input:focus,
+[data-theme="dark"] .select:focus,
+[data-theme="dark"] .textarea:focus {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1) inset;
+}
+
+/* Enhanced button styling */
+.btn {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Glass cards matching button color, slightly darker and glassy */
+/* Glass gradient cards with color + glass effect (home quick cards) */
+.glass-grad-card {
+  position: relative;
+  border: 0 !important;
+  overflow: hidden;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.glass-grad-primary { 
+  background: linear-gradient(135deg, hsl(var(--p) / 0.15), hsl(var(--p) / 0.08));
+}
+.glass-grad-secondary { 
+  background: linear-gradient(135deg, hsl(var(--s) / 0.15), hsl(var(--s) / 0.08));
+}
+.glass-grad-accent { 
+  background: linear-gradient(135deg, hsl(var(--a) / 0.15), hsl(var(--a) / 0.08));
+}
+
+[data-theme="dark"] .glass-grad-primary { 
+  background: linear-gradient(135deg, hsl(var(--p) / 0.2), hsl(var(--p) / 0.12));
+}
+[data-theme="dark"] .glass-grad-secondary { 
+  background: linear-gradient(135deg, hsl(var(--s) / 0.2), hsl(var(--s) / 0.12));
+}
+[data-theme="dark"] .glass-grad-accent { 
+  background: linear-gradient(135deg, hsl(var(--a) / 0.2), hsl(var(--a) / 0.12));
+}
+
+.glass-grad-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(800px 300px at 20% 20%, rgba(255,255,255,0.15), rgba(255,255,255,0)),
+              radial-gradient(600px 600px at 80% 80%, rgba(0,0,0,0.1), rgba(0,0,0,0));
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+[data-theme="dark"] .glass-grad-card::before {
+  background: radial-gradient(800px 300px at 20% 20%, rgba(255,255,255,0.08), rgba(255,255,255,0)),
+              radial-gradient(600px 600px at 80% 80%, rgba(0,0,0,0.2), rgba(0,0,0,0));
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .btn {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Enhanced modal and dropdown styling */
+.modal-box, .dropdown-content {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+}
+
+[data-theme="dark"] .modal-box,
+[data-theme="dark"] .dropdown-content {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Page transition improvements */
+.page-transition {
+  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.page-transition.loading {
+  opacity: 0.8;
+  transform: scale(0.99);
+}
+
+/* Neon effects for pizzazz */
+.tracking-number:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), 
+              0 0 20px currentColor;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  text-shadow: 0 0 10px currentColor;
+}
+
+[data-theme="dark"] .tracking-number:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4), 
+              0 0 25px currentColor;
+  text-shadow: 0 0 15px currentColor;
+}
+
+/* Enhanced neon for active nav buttons */
+.nav-btn.btn-active {
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2) inset,
+              0 0 20px hsl(var(--p) / 0.5);
+  text-shadow: 0 0 8px hsl(var(--p));
+}
+
+[data-theme="dark"] .nav-btn.btn-active {
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.05) inset,
+              0 0 25px hsl(var(--p) / 0.7);
+  text-shadow: 0 0 10px hsl(var(--p));
+}
+
+/* Subtle neon hover effects for buttons */
+.btn-primary:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2),
+              0 0 20px hsl(var(--p) / 0.5);
+  text-shadow: 0 0 8px hsl(var(--p) / 0.8);
+}
+
+.btn-success:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2),
+              0 0 20px hsl(var(--su) / 0.5);
+  text-shadow: 0 0 8px hsl(var(--su) / 0.8);
+}
+
+.btn-warning:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2),
+              0 0 20px hsl(var(--wa) / 0.5);
+  text-shadow: 0 0 8px hsl(var(--wa) / 0.8);
+}
+
+[data-theme="dark"] .btn-primary:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4),
+              0 0 25px hsl(var(--p) / 0.7);
+  text-shadow: 0 0 10px hsl(var(--p));
+}
+
+[data-theme="dark"] .btn-success:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4),
+              0 0 25px hsl(var(--su) / 0.7);
+  text-shadow: 0 0 10px hsl(var(--su));
+}
+
+[data-theme="dark"] .btn-warning:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4),
+              0 0 25px hsl(var(--wa) / 0.7);
+  text-shadow: 0 0 10px hsl(var(--wa));
+}
+
+/* Enhanced radial progress with neon */
+.radial-progress {
+  filter: drop-shadow(0 0 20px currentColor);
+  transition: all 0.3s ease;
+}
+
+.radial-progress:hover {
+  filter: drop-shadow(0 0 30px currentColor);
+  transform: scale(1.05);
+}
+
+/* Smooth content transitions */
+.content-wrapper {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced logo glow */
+.logo-image:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+}
+
+[data-theme="dark"] .logo-image:hover {
+  filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.8));
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .navbar-pill {
+    margin: 0.5rem auto;
+    padding: 0.5rem 1rem;
+    width: calc(100% - 1rem);
+  }
+  
+  .hero-content {
+    padding: 2rem 1rem;
+  }
+  
+  .stats {
+    flex-direction: column;
+  }
+  
+  .card-body {
+    padding: 1.5rem;
+  }
+  
+  .logo-container {
+    height: 28px;
+  }
+  
+  .logo-image {
+    height: 28px;
+    max-width: 100px;
+  }
+}

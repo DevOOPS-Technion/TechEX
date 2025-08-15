@@ -1,0 +1,457 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Parcel - TechEX{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <!-- Header Section -->
+    <div class="text-center mb-6">
+        <h1 class="text-3xl font-bold mb-2">
+            <i class="fas fa-plus-circle mr-2 text-primary"></i>
+            Add New Parcel
+        </h1>
+        <p class="text-base-content/60 text-sm">Register a new package for tracking</p>
+    </div>
+
+    <div class="max-w-4xl mx-auto">
+        <div class="card glass-card shadow-2xl">
+            <div class="card-body">
+                <form method="POST" id="addParcelForm" class="space-y-6">
+                    <!-- Tracking Information -->
+                    <div class="card glass-grad-card glass-grad-primary shadow-lg">
+                        <div class="card-body">
+                            <h3 class="card-title text-primary mb-4">
+                                <i class="fas fa-barcode mr-2"></i>
+                                Tracking Information
+                            </h3>
+                            
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text font-semibold">
+                                        <i class="fas fa-hashtag mr-2"></i>
+                                        Tracking Number *
+                                    </span>
+                                </label>
+                                <input type="text" name="tracking_number" 
+                                       placeholder="e.g., LP000123456CN" 
+                                       class="input input-bordered input-primary w-full" 
+                                       required maxlength="50"
+                                       pattern="[A-Za-z0-9]+"
+                                       title="Only letters and numbers allowed">
+                                <label class="label">
+                                    <span class="label-text-alt text-base-content/70">
+                                        Enter a unique tracking identifier
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sender & Receiver Information -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Sender -->
+                        <div class="card glass-grad-card glass-grad-secondary shadow-lg">
+                            <div class="card-body">
+                                <h3 class="card-title text-secondary mb-4">
+                                    <i class="fas fa-user-tag mr-2"></i>
+                                    Sender Information
+                                </h3>
+                                
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text font-semibold">
+                                            <i class="fas fa-building mr-2"></i>
+                                            Sender Name *
+                                        </span>
+                                    </label>
+                                    <input type="text" name="sender" 
+                                           placeholder="e.g., Cainiao Warehouse" 
+                                           class="input input-bordered input-secondary w-full" 
+                                           required maxlength="100">
+                                </div>
+
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text font-semibold">
+                                            <i class="fas fa-map-marker-alt mr-2"></i>
+                                            Origin Location *
+                                        </span>
+                                    </label>
+                                    <input type="text" name="origin" 
+                                           placeholder="e.g., Shanghai, China" 
+                                           class="input input-bordered input-secondary w-full" 
+                                           required maxlength="100">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Receiver -->
+                        <div class="card glass-grad-card glass-grad-accent shadow-lg">
+                            <div class="card-body">
+                                <h3 class="card-title text-accent mb-4">
+                                    <i class="fas fa-user-check mr-2"></i>
+                                    Receiver Information
+                                </h3>
+                                
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text font-semibold">
+                                            <i class="fas fa-user mr-2"></i>
+                                            Receiver Name *
+                                        </span>
+                                    </label>
+                                    <input type="text" name="receiver" 
+                                           placeholder="e.g., John Doe" 
+                                           class="input input-bordered input-accent w-full" 
+                                           required maxlength="100">
+                                </div>
+
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text font-semibold">
+                                            <i class="fas fa-home mr-2"></i>
+                                            Destination *
+                                        </span>
+                                    </label>
+                                    <input type="text" name="destination" 
+                                           placeholder="e.g., Tel Aviv, Israel" 
+                                           class="input input-bordered input-accent w-full" 
+                                           required maxlength="100">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Package Details -->
+                    <div class="card glass-grad-card glass-grad-accent shadow-lg">
+                        <div class="card-body">
+                            <h3 class="card-title text-warning mb-4">
+                                <i class="fas fa-box mr-2"></i>
+                                Package Details
+                            </h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text font-semibold">
+                                            <i class="fas fa-shekel-sign mr-2"></i>
+                                            Cost (₪) *
+                                        </span>
+                                    </label>
+                                    <input type="number" name="cost" 
+                                           placeholder="0.00" 
+                                           class="input input-bordered input-warning w-full" 
+                                           required min="0" step="0.01" max="999999.99">
+                                    <label class="label">
+                                        <span class="label-text-alt text-base-content/70">
+                                            Shipping cost in Shekels
+                                        </span>
+                                    </label>
+                                </div>
+
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text font-semibold">
+                                            <i class="fas fa-weight mr-2"></i>
+                                            Weight (kg) *
+                                        </span>
+                                    </label>
+                                    <input type="number" name="weight" 
+                                           placeholder="0.0" 
+                                           class="input input-bordered input-warning w-full" 
+                                           required min="0.1" step="0.1" max="1000">
+                                    <label class="label">
+                                        <span class="label-text-alt text-base-content/70">
+                                            Package weight in kilograms
+                                        </span>
+                                    </label>
+                                </div>
+
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text font-semibold">
+                                            <i class="fas fa-calendar-alt mr-2"></i>
+                                            Dispatch Date *
+                                        </span>
+                                    </label>
+                                    <input type="date" name="dispatch_date" 
+                                           class="input input-bordered input-warning w-full" 
+                                           required>
+                                    <label class="label">
+                                        <span class="label-text-alt text-base-content/70">
+                                            When was the package sent
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="card glass-grad-card glass-grad-primary shadow-lg border border-primary/20">
+                        <div class="card-body py-4">
+                            <div class="flex flex-col sm:flex-row gap-3 justify-between items-center">
+                                <div class="text-xs text-base-content/60">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    All fields marked with * are required
+                                </div>
+                                
+                                <div class="flex gap-2">
+                                    <a href="{{ url_for('list_parcels') }}" class="btn btn-outline btn-sm">
+                                        <i class="fas fa-arrow-left mr-1"></i>
+                                        Cancel
+                                    </a>
+                                    <button type="reset" class="btn btn-warning btn-outline btn-sm">
+                                        <i class="fas fa-undo mr-1"></i>
+                                        Reset
+                                    </button>
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-plus mr-1"></i>
+                                        Add Parcel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Quick Tips -->
+        <div class="mt-8">
+            <div class="card glass-card shadow-lg">
+                <div class="card-body">
+                    <h3 class="card-title text-info mb-4">
+                        <i class="fas fa-lightbulb mr-2"></i>
+                        Quick Tips
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex items-start gap-3">
+                            <div class="text-success text-xl">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Tracking Number</h4>
+                                <p class="text-sm text-base-content/70">
+                                    Use a unique identifier that you can easily reference later
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-3">
+                            <div class="text-info text-xl">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Accurate Details</h4>
+                                <p class="text-sm text-base-content/70">
+                                    Double-check sender and receiver information for accuracy
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-3">
+                            <div class="text-warning text-xl">
+                                <i class="fas fa-weight-hanging"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Weight & Cost</h4>
+                                <p class="text-sm text-base-content/70">
+                                    Enter precise measurements for better tracking analytics
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-3">
+                            <div class="text-accent text-xl">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Dispatch Date</h4>
+                                <p class="text-sm text-base-content/70">
+                                    Set the actual date when the package was sent
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('addParcelForm');
+    const inputs = form.querySelectorAll('input[required]');
+    
+    // Set today's date as default for dispatch date
+    const dispatchDateInput = form.querySelector('input[name="dispatch_date"]');
+    const today = new Date().toISOString().split('T')[0];
+    dispatchDateInput.value = today;
+    
+    // Real-time validation
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            validateField(this);
+        });
+        
+        input.addEventListener('input', function() {
+            // Remove error styling while typing
+            this.classList.remove('input-error');
+        });
+    });
+    
+    function validateField(field) {
+        const value = field.value.trim();
+        
+        // Check if required field is empty
+        if (field.hasAttribute('required') && !value) {
+            field.classList.add('input-error');
+            return false;
+        }
+        
+        // Specific validations
+        switch (field.name) {
+            case 'tracking_number':
+                if (!/^[A-Za-z0-9]+$/.test(value)) {
+                    field.classList.add('input-error');
+                    return false;
+                }
+                break;
+                
+            case 'cost':
+                if (parseFloat(value) < 0) {
+                    field.classList.add('input-error');
+                    return false;
+                }
+                break;
+                
+            case 'weight':
+                if (parseFloat(value) <= 0) {
+                    field.classList.add('input-error');
+                    return false;
+                }
+                break;
+                
+            case 'dispatch_date':
+                if (!value || new Date(value) > new Date()) {
+                    field.classList.add('input-error');
+                    return false;
+                }
+                break;
+        }
+        
+        field.classList.remove('input-error');
+        return true;
+    }
+    
+    // Form submission validation
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        inputs.forEach(input => {
+            if (!validateField(input)) {
+                isValid = false;
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            
+            // Show error message
+            const errorAlert = document.createElement('div');
+            errorAlert.className = 'alert alert-error animate-fade-in mb-4';
+            errorAlert.innerHTML = `
+                <div>
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    Please correct the highlighted fields before submitting.
+                </div>
+            `;
+            
+            form.insertBefore(errorAlert, form.firstChild);
+            
+            // Auto-remove error message
+            setTimeout(() => {
+                errorAlert.remove();
+            }, 5000);
+            
+            // Scroll to first error
+            const firstError = form.querySelector('.input-error');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+        }
+    });
+    
+    // Reset form
+    const resetButton = form.querySelector('button[type="reset"]');
+    resetButton.addEventListener('click', function() {
+        setTimeout(() => {
+            inputs.forEach(input => {
+                input.classList.remove('input-error');
+            });
+            dispatchDateInput.value = today;
+        }, 100);
+    });
+    
+    // Auto-format tracking number (uppercase)
+    const trackingInput = form.querySelector('input[name="tracking_number"]');
+    trackingInput.addEventListener('input', function() {
+        this.value = this.value.toUpperCase();
+    });
+    
+    // Add animation effects
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.classList.add('animate-fade-in');
+    });
+    
+    // Floating labels effect
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.classList.add('focused');
+        });
+        
+        input.addEventListener('blur', function() {
+            if (!this.value) {
+                this.parentElement.classList.remove('focused');
+            }
+        });
+    });
+});
+</script>
+
+<style>
+.form-control.focused .label-text {
+    color: hsl(var(--p));
+    transform: scale(0.9);
+}
+
+.input-error {
+    border-color: hsl(var(--er)) !important;
+    background-color: hsl(var(--er) / 0.1) !important;
+}
+
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+input:focus {
+    transform: scale(1.02);
+    transition: transform 0.2s ease;
+}
+
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1rem;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,277 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'TechEX | Parcel Management System with 2 AZs for Midterm Project'
+
+Parameters:
+  ImageURI:
+    Type: String
+    Default: "ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/techex:latest"
+    Description: ECR image location for TechEX app
+
+Resources:
+  # ===== NETWORKING SETUP =====
+  # Main VPC
+  TechEXVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.10.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: TechEX-VPC
+
+  # Internet Gateway for external access
+  TechEXIGW:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: TechEX-IGW
+
+  # Attach the internet gateway to our VPC
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref TechEXIGW
+      VpcId: !Ref TechEXVPC
+
+  # ===== SUBNET CONFIGURATION =====
+  # Primary subnet in us-east-1a
+  TechEXSubnetEast1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref TechEXVPC
+      AvailabilityZone: !Select [0, !GetAZs '']
+      CidrBlock: 10.10.1.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: TechEX-Subnet-East1
+
+  # Secondary subnet in us-east-1b for redundancy
+  TechEXSubnetEast2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref TechEXVPC
+      AvailabilityZone: !Select [1, !GetAZs '']
+      CidrBlock: 10.10.2.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: TechEX-Subnet-East2
+
+  # ===== ROUTING CONFIGURATION =====
+  # Main routing table for TechEX
+  TechEXRT:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref TechEXVPC
+      Tags:
+        - Key: Name
+          Value: TechEX-RT
+
+  # Route to internet - this is what makes our instances accessible
+  TechEXDefaultRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment 
+    Properties:
+      RouteTableId: !Ref TechEXRT
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref TechEXIGW
+
+  # Connect our subnets to the routing table
+  TechEXSubnetEast1RTAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref TechEXRT
+      SubnetId: !Ref TechEXSubnetEast1
+
+  TechEXSubnetEast2RTAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref TechEXRT
+      SubnetId: !Ref TechEXSubnetEast2
+
+  # ===== SECURITY GROUPS =====
+  # EC2 Security Group
+  TechEXEC2SG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: TechEX-WebServer-SG
+      GroupDescription: Security group for TechEX Flask servers - allows load balancer traffic and SSH
+      VpcId: !Ref TechEXVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5000
+          ToPort: 5000
+          SourceSecurityGroupId: !Ref TechEXLoadBalancerSG
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: TechEX-WebServer-SG
+
+  # Load Balancer Security Group
+  TechEXLoadBalancerSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: TechEX-LoadBalancer-SG
+      GroupDescription: Security group for TechEX load balancer - allows HTTP traffic
+      VpcId: !Ref TechEXVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0 
+      Tags:
+        - Key: Name
+          Value: TechEX-LoadBalancer-SG
+
+  # ===== INSTANCE TEMPLATE =====
+  # This is what defines how our TechEX servers will be built
+  TechEXLT:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: TechEX-LT
+      LaunchTemplateData:
+        ImageId: ami-0c02fb55956c7d316
+        InstanceType: t3.micro
+        SecurityGroupIds:
+          - !Ref TechEXEC2SG  
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash
+            
+            # run updates and install docker and git
+            yum update -y
+            yum install -y docker git
+            
+            # enable docker and add ec2-user to the docker group
+            service docker start
+            chkconfig docker on
+            usermod -a -G docker ec2-user
+            
+            # sleep for 15 seconds to allow docker to start
+            sleep 15
+            
+            # clone the repo
+            cd /home/ec2-user
+            git clone https://github.com/DevOOPS-Technion/TechEX.git
+            cd TechEX
+            
+            # build the docker image
+            docker build -f docker/Dockerfile -t techex-web .
+            
+            # run the docker image
+            docker run -d -p 5000:5000 --name techex-web
+            
+            # sleep for 30 seconds to allow the app to start
+            sleep 30
+            
+            # check if the app is running
+            if curl -f http://localhost:5000/ > /dev/null 2>&1; then
+                echo "SUCCESS: TechEX app is running properly" > /tmp/app-status
+            else
+                echo "FAILED: TechEX app is not responding" > /tmp/app-status
+                # restart the docker image
+                docker restart techex-web
+                sleep 15
+                if curl -f http://localhost:5000/ > /dev/null 2>&1; then
+                    echo "SUCCESS: TechEX app restarted successfully" > /tmp/app-status
+                else
+                    echo "FAILED: TechEX app restart failed" > /tmp/app-status
+                fi
+            fi
+        TagSpecifications:
+          - ResourceType: instance
+            Tags:
+              - Key: Name
+                Value: TechEX-Web
+
+  # ===== LOAD BALANCER SETUP =====
+  # Application Load Balancer - this distributes traffic across our instances
+  TechEXLB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Scheme: internet-facing
+      Type: application         
+      Subnets:
+        - !Ref TechEXSubnetEast1
+        - !Ref TechEXSubnetEast2
+      SecurityGroups:
+        - !Ref TechEXLoadBalancerSG
+      Tags:
+        - Key: Name
+          Value: TechEX-LB
+
+  # Target group - this is where the load balancer sends traffic
+  TechEXTG:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Port: 5000
+      Protocol: HTTP          
+      VpcId: !Ref TechEXVPC
+      HealthCheckPath: /health
+      HealthCheckProtocol: HTTP             
+      HealthCheckIntervalSeconds: 30       
+      HealthCheckTimeoutSeconds: 5          
+      HealthyThresholdCount: 2             
+      UnhealthyThresholdCount: 5          
+      Matcher:
+        HttpCode: 200-399
+      Tags:
+        - Key: Name
+          Value: TechEX-TG 
+
+  # Load balancer listener - this handles incoming HTTP requests
+  TechEXListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      Port: 80
+      Protocol: HTTP      
+      LoadBalancerArn: !Ref TechEXLB
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TechEXTG
+
+  # ===== AUTO SCALING =====
+  # Auto Scaling Group - this manages our TechEX instances
+  TechEXAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: TechEX-ASG
+      VPCZoneIdentifier:
+        - !Ref TechEXSubnetEast1
+        - !Ref TechEXSubnetEast2
+      LaunchTemplate:
+        LaunchTemplateId: !Ref TechEXLT
+        Version: !GetAtt TechEXLT.LatestVersionNumber
+      MinSize: 2            # Always keep at least 2 instances running
+      MaxSize: 4            # Can scale up to 4 if needed
+      DesiredCapacity: 2    # Start with 2 instances
+      TargetGroupARNs:
+        - !Ref TechEXTG
+      HealthCheckType: ELB
+      HealthCheckGracePeriod: 600  # 10 minutes to allow for app startup
+      Tags:
+        - Key: Name
+          Value: TechEX-ASG-Instance
+          PropagateAtLaunch: true  
+
+Outputs:
+  # VPC ID for troubleshooting and future reference
+  TechEXVPCID:
+    Description: VPC ID for TechEX infrastructure
+    Value: !Ref TechEXVPC
+    Export:
+      Name: !Sub '${AWS::StackName}-VPC'
+
+  # The URL where users can access TechEX
+  TechEXLBURL:
+    Value: !Sub 'http://${TechEXLB.DNSName}'
+    Description: Load Balancer URL for TechEX
+    Export:
+      Name: !Sub '${AWS::StackName}-LoadBalancerURL'
+

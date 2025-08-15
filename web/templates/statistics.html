@@ -1,0 +1,502 @@
+{% extends "base.html" %}
+
+{% block title %}Statistics - TechEX{% endblock %}
+
+{% block content %}
+
+<style>
+/* Fix gradient cards visibility in light mode */
+[data-theme="light"] .card.bg-gradient-to-br {
+    border: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .from-primary\/20.to-primary\/5 {
+    background: linear-gradient(to bottom right, 
+        rgba(99, 102, 241, 0.25), 
+        rgba(99, 102, 241, 0.08)) !important;
+}
+
+[data-theme="light"] .from-success\/20.to-success\/5 {
+    background: linear-gradient(to bottom right, 
+        rgba(34, 197, 94, 0.25), 
+        rgba(34, 197, 94, 0.08)) !important;
+}
+
+[data-theme="light"] .from-warning\/20.to-warning\/5 {
+    background: linear-gradient(to bottom right, 
+        rgba(245, 158, 11, 0.25), 
+        rgba(245, 158, 11, 0.08)) !important;
+}
+
+[data-theme="light"] .from-accent\/20.to-accent\/5 {
+    background: linear-gradient(to bottom right, 
+        rgba(20, 184, 166, 0.25), 
+        rgba(20, 184, 166, 0.08)) !important;
+}
+</style>
+<div class="animate-fade-in">
+    <!-- Header Section -->
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold mb-2">
+            <i class="fas fa-chart-bar mr-3 text-primary"></i>
+            Parcel Statistics
+        </h1>
+        <p class="text-base-content/70">Analytics and insights for your shipment data</p>
+    </div>
+
+    <!-- Quick Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Parcels -->
+        <div class="card bg-gradient-to-br from-primary/20 to-primary/5 shadow-xl card-hover border border-primary/20">
+            <div class="card-body items-center text-center">
+                <div class="text-5xl text-primary mb-3">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <h3 class="text-3xl font-bold">{{ stats.total_parcels }}</h3>
+                <p class="text-base-content/70">Total Parcels</p>
+                <div class="badge badge-primary mt-2">100%</div>
+            </div>
+        </div>
+
+        <!-- Delivered -->
+        <div class="card bg-gradient-to-br from-success/20 to-success/5 shadow-xl card-hover border border-success/20">
+            <div class="card-body items-center text-center">
+                <div class="text-5xl text-success mb-3">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 class="text-3xl font-bold">{{ stats.delivered_count }}</h3>
+                <p class="text-base-content/70">Delivered</p>
+                {% if stats.total_parcels > 0 %}
+                    <div class="badge badge-success mt-2">{{ "%.1f"|format(stats.delivery_rate) }}%</div>
+                {% else %}
+                    <div class="badge badge-success mt-2">0%</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Pending -->
+        <div class="card bg-gradient-to-br from-warning/20 to-warning/5 shadow-xl card-hover border border-warning/20">
+            <div class="card-body items-center text-center">
+                <div class="text-5xl text-warning mb-3">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3 class="text-3xl font-bold">{{ stats.pending_count }}</h3>
+                <p class="text-base-content/70">Pending</p>
+                {% if stats.total_parcels > 0 %}
+                    <div class="badge badge-warning mt-2">{{ "%.1f"|format(100 - stats.delivery_rate) }}%</div>
+                {% else %}
+                    <div class="badge badge-warning mt-2">0%</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Total Value -->
+        <div class="card bg-gradient-to-br from-accent/20 to-accent/5 shadow-xl card-hover border border-accent/20">
+            <div class="card-body items-center text-center">
+                <div class="text-5xl text-accent mb-3">
+                    <i class="fas fa-shekel-sign"></i>
+                </div>
+                <h3 class="text-3xl font-bold">₪{{ "%.2f"|format(stats.total_cost) }}</h3>
+                <p class="text-base-content/70">Total Value</p>
+                <div class="badge badge-accent mt-2">Shekels</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Statistics -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Financial Statistics -->
+        <div class="card glass-card shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title text-2xl mb-6">
+                    <i class="fas fa-money-bill-wave mr-2 text-accent"></i>
+                    Financial Overview
+                </h2>
+                
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center p-4 bg-base-100 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="text-accent text-xl">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <span class="font-semibold">Total Cost</span>
+                        </div>
+                        <span class="text-2xl font-bold text-accent">₪{{ "%.2f"|format(stats.total_cost) }}</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center p-4 bg-base-100 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="text-info text-xl">
+                                <i class="fas fa-calculator"></i>
+                            </div>
+                            <span class="font-semibold">Average Cost</span>
+                        </div>
+                        <span class="text-2xl font-bold text-info">₪{{ "%.2f"|format(stats.avg_cost) }}</span>
+                    </div>
+                    
+                    {% if stats.delivered_count > 0 %}
+                    <div class="flex justify-between items-center p-4 bg-base-100 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="text-success text-xl">
+                                <i class="fas fa-check-double"></i>
+                            </div>
+                            <span class="font-semibold">Delivered Value</span>
+                        </div>
+                        <span class="text-xl font-bold text-success">
+                            ₪{{ "%.2f"|format((stats.total_cost * stats.delivery_rate / 100)) }}
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Physical Statistics -->
+        <div class="card glass-card shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title text-2xl mb-6">
+                    <i class="fas fa-weight mr-2 text-warning"></i>
+                    Weight Analysis
+                </h2>
+                
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center p-4 bg-base-100 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="text-warning text-xl">
+                                <i class="fas fa-balance-scale"></i>
+                            </div>
+                            <span class="font-semibold">Total Weight</span>
+                        </div>
+                        <span class="text-2xl font-bold text-warning">{{ "%.1f"|format(stats.total_weight) }} kg</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center p-4 bg-base-100 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="text-secondary text-xl">
+                                <i class="fas fa-weight-hanging"></i>
+                            </div>
+                            <span class="font-semibold">Average Weight</span>
+                        </div>
+                        <span class="text-2xl font-bold text-secondary">{{ "%.1f"|format(stats.avg_weight) }} kg</span>
+                    </div>
+                    
+                    {% if stats.total_weight > 0 %}
+                    <div class="flex justify-between items-center p-4 bg-base-100 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="text-info text-xl">
+                                <i class="fas fa-shipping-fast"></i>
+                            </div>
+                            <span class="font-semibold">Cost per kg</span>
+                        </div>
+                        <span class="text-xl font-bold text-info">
+                            ₪{{ "%.2f"|format(stats.total_cost / stats.total_weight) }}
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Metrics -->
+    {% if stats.total_parcels > 0 %}
+    <div class="card glass-card shadow-xl mb-8">
+        <div class="card-body">
+            <h2 class="card-title text-2xl mb-6">
+                <i class="fas fa-tachometer-alt mr-2 text-primary"></i>
+                Performance Metrics
+            </h2>
+            
+            <!-- Delivery Rate Progress -->
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="font-semibold">Delivery Rate</span>
+                    <span class="text-lg font-bold">{{ "%.1f"|format(stats.delivery_rate) }}%</span>
+                </div>
+                <div class="w-full bg-base-300 rounded-full h-4">
+                    <div class="bg-gradient-to-r from-success to-primary h-4 rounded-full transition-all duration-1000 ease-out" 
+                         style="width: {{ stats.delivery_rate }}%" id="deliveryProgress"></div>
+                </div>
+                <div class="flex justify-between text-sm text-base-content/70 mt-1">
+                    <span>0%</span>
+                    <span>100%</span>
+                </div>
+            </div>
+
+            <!-- Status Distribution -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="text-center">
+                    <div class="radial-progress text-success text-5xl font-bold mb-4" 
+                         style="--value:{{ stats.delivery_rate|round|int }}; --size:8rem;" 
+                         role="progressbar">
+                        {{ "%.0f"|format(stats.delivery_rate) }}%
+                    </div>
+                    <p class="font-semibold">Delivered Parcels</p>
+                    <p class="text-sm text-base-content/70">{{ stats.delivered_count }} of {{ stats.total_parcels }}</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="radial-progress text-warning text-5xl font-bold mb-4" 
+                         style="--value:{{ (100 - stats.delivery_rate)|round|int }}; --size:8rem;" 
+                         role="progressbar">
+                        {{ "%.0f"|format(100 - stats.delivery_rate) }}%
+                    </div>
+                    <p class="font-semibold">Pending Parcels</p>
+                    <p class="text-sm text-base-content/70">{{ stats.pending_count }} of {{ stats.total_parcels }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Efficiency Insights -->
+    <div class="card bg-gradient-to-br from-info/10 to-primary/10 shadow-xl mb-8">
+        <div class="card-body">
+            <h2 class="card-title text-2xl mb-6">
+                <i class="fas fa-lightbulb mr-2 text-info"></i>
+                Insights & Recommendations
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Efficiency Insight -->
+                <div class="card glass-grad-card glass-grad-secondary shadow-lg">
+                    <div class="card-body text-center">
+                        {% if stats.delivery_rate >= 80 %}
+                            <div class="text-4xl text-success mb-3">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <h3 class="font-bold text-success">Excellent Performance!</h3>
+                            <p class="text-sm">Your delivery rate is outstanding</p>
+                        {% elif stats.delivery_rate >= 60 %}
+                            <div class="text-4xl text-warning mb-3">
+                                <i class="fas fa-thumbs-up"></i>
+                            </div>
+                            <h3 class="font-bold text-warning">Good Performance</h3>
+                            <p class="text-sm">Room for improvement in delivery rate</p>
+                        {% else %}
+                            <div class="text-4xl text-error mb-3">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <h3 class="font-bold text-error">Needs Attention</h3>
+                            <p class="text-sm">Consider optimizing delivery processes</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Cost Insight -->
+                <div class="card glass-grad-card glass-grad-accent shadow-lg">
+                    <div class="card-body text-center">
+                        {% if stats.avg_cost <= 20 %}
+                            <div class="text-4xl text-success mb-3">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <h3 class="font-bold text-success">Cost Efficient</h3>
+                            <p class="text-sm">Average shipping cost is optimal</p>
+                        {% elif stats.avg_cost <= 30 %}
+                            <div class="text-4xl text-warning mb-3">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <h3 class="font-bold text-warning">Moderate Costs</h3>
+                            <p class="text-sm">Consider cost optimization strategies</p>
+                        {% else %}
+                            <div class="text-4xl text-error mb-3">
+                                <i class="fas fa-money-bill-alt"></i>
+                            </div>
+                            <h3 class="font-bold text-error">High Costs</h3>
+                            <p class="text-sm">Review shipping partnerships</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Volume Insight -->
+                <div class="card glass-grad-card glass-grad-primary shadow-lg">
+                    <div class="card-body text-center">
+                        {% if stats.total_parcels >= 10 %}
+                            <div class="text-4xl text-info mb-3">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h3 class="font-bold text-info">High Volume</h3>
+                            <p class="text-sm">Great shipping activity level</p>
+                        {% elif stats.total_parcels >= 5 %}
+                            <div class="text-4xl text-accent mb-3">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <h3 class="font-bold text-accent">Moderate Volume</h3>
+                            <p class="text-sm">Steady shipping activity</p>
+                        {% else %}
+                            <div class="text-4xl text-secondary mb-3">
+                                <i class="fas fa-seedling"></i>
+                            </div>
+                            <h3 class="font-bold text-secondary">Growing Business</h3>
+                            <p class="text-sm">Early stage shipping operations</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="text-center">
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{{ url_for('list_parcels') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-list mr-2"></i>
+                View All Parcels
+            </a>
+            <a href="{{ url_for('add_parcel') }}" class="btn btn-secondary btn-lg">
+                <i class="fas fa-plus mr-2"></i>
+                Add New Parcel
+            </a>
+            <button onclick="window.print()" class="btn btn-outline btn-lg">
+                <i class="fas fa-print mr-2"></i>
+                Print Report
+            </button>
+        </div>
+    </div>
+
+    {% if stats.total_parcels == 0 %}
+    <!-- Empty State -->
+    <div class="text-center py-16">
+        <div class="text-8xl text-base-content/20 mb-4">
+            <i class="fas fa-chart-bar"></i>
+        </div>
+        <h3 class="text-2xl font-bold mb-4">No Statistics Available</h3>
+        <p class="text-base-content/70 mb-8">Add some parcels to see detailed analytics and insights</p>
+        <a href="{{ url_for('add_parcel') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-plus mr-2"></i>
+            Add Your First Parcel
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate statistics cards on page load
+    const cards = document.querySelectorAll('.card-hover, .card');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.classList.add('animate-fade-in');
+    });
+    
+    // Animate progress bars
+    const progressBars = document.querySelectorAll('.radial-progress');
+    progressBars.forEach((bar, index) => {
+        setTimeout(() => {
+            bar.style.transition = 'all 2s ease-out';
+            const value = bar.style.getPropertyValue('--value');
+            bar.style.setProperty('--value', 0);
+            setTimeout(() => {
+                bar.style.setProperty('--value', value);
+            }, 100);
+        }, index * 500);
+    });
+    
+    // Animate delivery progress bar
+    const deliveryProgress = document.getElementById('deliveryProgress');
+    if (deliveryProgress) {
+        const targetWidth = deliveryProgress.style.width;
+        deliveryProgress.style.width = '0%';
+        setTimeout(() => {
+            deliveryProgress.style.width = targetWidth;
+        }, 500);
+    }
+    
+    // Add hover effects to statistics cards
+    const statCards = document.querySelectorAll('.card-hover');
+    statCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px) scale(1.05)';
+            this.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.2)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+            this.style.boxShadow = '';
+        });
+    });
+    
+    // Add pulse animation to key metrics
+    const keyMetrics = document.querySelectorAll('.text-3xl.font-bold');
+    keyMetrics.forEach(metric => {
+        metric.classList.add('pulse-success');
+    });
+    
+    // Print-friendly styles
+    const printStyles = `
+        <style media="print">
+            .navbar, .footer, .btn { display: none !important; }
+            .card { break-inside: avoid; }
+            @page { margin: 1in; }
+            body { print-color-adjust: exact; }
+        </style>
+    `;
+    document.head.insertAdjacentHTML('beforeend', printStyles);
+});
+
+// Export functionality (could be enhanced with actual CSV export)
+function exportStatistics() {
+    const stats = {
+        totalParcels: {{ stats.total_parcels }},
+        delivered: {{ stats.delivered_count }},
+        pending: {{ stats.pending_count }},
+        totalCost: {{ stats.total_cost }},
+        totalWeight: {{ stats.total_weight }},
+        avgCost: {{ stats.avg_cost }},
+        avgWeight: {{ stats.avg_weight }},
+        deliveryRate: {{ stats.delivery_rate }}
+    };
+    
+    console.log('Statistics Export:', stats);
+    // This could be enhanced to generate CSV or PDF exports
+}
+</script>
+
+<style>
+.card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pulse-success {
+    animation: pulseSuccess 3s infinite;
+}
+
+@keyframes pulseSuccess {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.radial-progress {
+    transition: all 2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media print {
+    .animate-fade-in {
+        animation: none !important;
+    }
+    
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+    }
+    
+    .gradient-to-br {
+        background: #f9f9f9 !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1.5rem 1rem;
+    }
+    
+    .text-3xl {
+        font-size: 2rem;
+    }
+    
+    .text-5xl {
+        font-size: 3rem;
+    }
+}
+</style>
+{% endblock %}

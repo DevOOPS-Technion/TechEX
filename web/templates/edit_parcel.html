@@ -1,0 +1,466 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Parcel {{ parcel.tracking_number }} - TechEX{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <!-- Header Section -->
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold mb-2">
+            <i class="fas fa-edit mr-3 text-primary"></i>
+            Edit Parcel
+        </h1>
+        <p class="text-base-content/70">
+            Tracking Number: 
+            <span class="font-mono font-bold text-primary">{{ parcel.tracking_number }}</span>
+        </p>
+    </div>
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Current Parcel Information -->
+        <div class="card glass-card shadow-2xl mb-8">
+            <div class="card-body">
+                <h2 class="card-title text-2xl mb-6">
+                    <i class="fas fa-info-circle mr-2 text-info"></i>
+                    Current Parcel Information
+                </h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Basic Info -->
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-3 bg-base-100 rounded-lg">
+                            <span class="font-semibold">ID:</span>
+                            <span class="badge badge-ghost">{{ parcel.id }}</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-base-100 rounded-lg">
+                            <span class="font-semibold">Tracking Number:</span>
+                            <span class="font-mono text-primary">{{ parcel.tracking_number }}</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-base-100 rounded-lg">
+                            <span class="font-semibold">Status:</span>
+                            {% if parcel.status == 'delivered' %}
+                                <div class="badge badge-success gap-2">
+                                    <i class="fas fa-check-circle"></i>
+                                    Delivered
+                                </div>
+                            {% else %}
+                                <div class="badge badge-warning gap-2">
+                                    <i class="fas fa-clock"></i>
+                                    Pending
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Details -->
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-3 bg-base-100 rounded-lg">
+                            <span class="font-semibold">Cost:</span>
+                            <span class="text-accent font-bold">₪{{ "%.2f"|format(parcel.cost) }}</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-base-100 rounded-lg">
+                            <span class="font-semibold">Weight:</span>
+                            <span>{{ "%.1f"|format(parcel.weight) }} kg</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-base-100 rounded-lg">
+                            <span class="font-semibold">Dispatch Date:</span>
+                            <span>{{ parcel.dispatch_date }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Route Information -->
+                <div class="mt-6">
+                    <h3 class="text-lg font-semibold mb-4">Route Information</h3>
+                    <div class="flex flex-col md:flex-row items-center gap-4">
+                        <div class="card bg-base-100 flex-1 w-full">
+                            <div class="card-body text-center">
+                                <div class="text-2xl text-secondary mb-2">
+                                    <i class="fas fa-user-tag"></i>
+                                </div>
+                                <h4 class="font-bold">From</h4>
+                                <p class="text-sm">{{ parcel.sender }}</p>
+                                <p class="text-xs text-base-content/70">{{ parcel.origin }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="text-3xl text-primary">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                        
+                        <div class="card bg-base-100 flex-1 w-full">
+                            <div class="card-body text-center">
+                                <div class="text-2xl text-accent mb-2">
+                                    <i class="fas fa-user-check"></i>
+                                </div>
+                                <h4 class="font-bold">To</h4>
+                                <p class="text-sm">{{ parcel.receiver }}</p>
+                                <p class="text-xs text-base-content/70">{{ parcel.destination }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Options -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Status Update -->
+            <div class="card glass-grad-card glass-grad-primary shadow-xl card-hover">
+                <div class="card-body">
+                    <h3 class="card-title text-primary mb-4">
+                        <i class="fas fa-sync-alt mr-2"></i>
+                        Update Status
+                    </h3>
+                    
+                    <form method="POST" class="space-y-4">
+                        <input type="hidden" name="field" value="status">
+                        
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-semibold">Select New Status:</span>
+                            </label>
+                            <select name="value" class="select select-bordered select-primary w-full" required>
+                                <option value="" disabled selected>Choose status...</option>
+                                <option value="pending" {% if parcel.status == 'pending' %}selected{% endif %}>
+                                    📋 Pending
+                                </option>
+                                <option value="delivered" {% if parcel.status == 'delivered' %}selected{% endif %}>
+                                    ✅ Delivered
+                                </option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-full">
+                            <i class="fas fa-save mr-2"></i>
+                            Update Status
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Delivery Date Update -->
+            <div class="card glass-grad-card glass-grad-secondary shadow-xl card-hover">
+                <div class="card-body">
+                    <h3 class="card-title text-success mb-4">
+                        <i class="fas fa-calendar-check mr-2"></i>
+                        Update Delivery Date
+                    </h3>
+                    
+                    <form method="POST" class="space-y-4">
+                        <input type="hidden" name="field" value="delivery_date">
+                        
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-semibold">Delivery Date:</span>
+                            </label>
+                            <input type="date" name="value" 
+                                   class="input input-bordered input-success w-full" 
+                                   value="{{ parcel.delivery_date or '' }}">
+                            <label class="label">
+                                <span class="label-text-alt text-base-content/70">
+                                    Leave empty to clear delivery date
+                                </span>
+                            </label>
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <button type="submit" class="btn btn-success flex-1">
+                                <i class="fas fa-calendar-plus mr-2"></i>
+                                Update Date
+                            </button>
+                            <button type="button" class="btn btn-outline btn-warning" onclick="clearDeliveryDate(this.form)">
+                                <i class="fas fa-times mr-2"></i>
+                                Clear
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Cost Update -->
+            <div class="card glass-grad-card glass-grad-accent shadow-xl card-hover">
+                <div class="card-body">
+                    <h3 class="card-title text-accent mb-4">
+                        <i class="fas fa-shekel-sign mr-2"></i>
+                        Update Cost
+                    </h3>
+                    
+                    <form method="POST" class="space-y-4">
+                        <input type="hidden" name="field" value="cost">
+                        
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-semibold">New Cost (₪):</span>
+                            </label>
+                            <input type="number" name="value" 
+                                   class="input input-bordered input-accent w-full" 
+                                   value="{{ parcel.cost }}"
+                                   min="0" step="0.01" max="999999.99" required>
+                            <label class="label">
+                                <span class="label-text-alt text-base-content/70">
+                                    Current: ₪{{ "%.2f"|format(parcel.cost) }}
+                                </span>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-accent w-full">
+                            <i class="fas fa-edit mr-2"></i>
+                            Update Cost
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Weight Update -->
+            <div class="card glass-grad-card glass-grad-secondary shadow-xl card-hover">
+                <div class="card-body">
+                    <h3 class="card-title text-warning mb-4">
+                        <i class="fas fa-weight mr-2"></i>
+                        Update Weight
+                    </h3>
+                    
+                    <form method="POST" class="space-y-4">
+                        <input type="hidden" name="field" value="weight">
+                        
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-semibold">New Weight (kg):</span>
+                            </label>
+                            <input type="number" name="value" 
+                                   class="input input-bordered input-warning w-full" 
+                                   value="{{ parcel.weight }}"
+                                   min="0.1" step="0.1" max="1000" required>
+                            <label class="label">
+                                <span class="label-text-alt text-base-content/70">
+                                    Current: {{ "%.1f"|format(parcel.weight) }} kg
+                                </span>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-warning w-full">
+                            <i class="fas fa-balance-scale mr-2"></i>
+                            Update Weight
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-8">
+            <div class="card bg-gradient-to-r from-primary/10 to-secondary/10 shadow-lg">
+                <div class="card-body">
+                    <div class="flex flex-col sm:flex-row gap-4 justify-between items-center">
+                        <div class="text-sm text-base-content/70">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            Changes are saved immediately upon submission
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <a href="{{ url_for('list_parcels') }}" class="btn btn-outline">
+                                <i class="fas fa-arrow-left mr-2"></i>
+                                Back to List
+                            </a>
+                            <form method="POST" action="{{ url_for('remove_parcel', parcel_id=parcel.id) }}" 
+                                  class="inline" onsubmit="return confirmDelete('Are you sure you want to permanently delete parcel {{ parcel.tracking_number }}?')">
+                                <button type="submit" class="btn btn-error btn-outline">
+                                    <i class="fas fa-trash mr-2"></i>
+                                    Delete Parcel
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit History (Visual Enhancement) -->
+        <div class="mt-8">
+            <div class="card glass-card shadow-lg">
+                <div class="card-body">
+                    <h3 class="card-title text-info mb-4">
+                        <i class="fas fa-history mr-2"></i>
+                        Quick Actions Guide
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex items-start gap-3">
+                            <div class="text-primary text-xl">
+                                <i class="fas fa-sync-alt"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Status Updates</h4>
+                                <p class="text-sm text-base-content/70">
+                                    Mark packages as delivered or pending
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-3">
+                            <div class="text-success text-xl">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Delivery Date</h4>
+                                <p class="text-sm text-base-content/70">
+                                    Set or clear the delivery date
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-3">
+                            <div class="text-accent text-xl">
+                                <i class="fas fa-shekel-sign"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Cost Adjustment</h4>
+                                <p class="text-sm text-base-content/70">
+                                    Update shipping costs if needed
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-3">
+                            <div class="text-warning text-xl">
+                                <i class="fas fa-weight"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Weight Correction</h4>
+                                <p class="text-sm text-base-content/70">
+                                    Adjust package weight measurements
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate cards on page load
+    const cards = document.querySelectorAll('.card-hover');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.classList.add('animate-fade-in');
+    });
+    
+    // Form submission enhancements
+    const forms = document.querySelectorAll('form[method="POST"]');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
+                
+                // Re-enable button after a timeout in case of errors
+                setTimeout(() => {
+                    submitBtn.classList.remove('loading');
+                    submitBtn.disabled = false;
+                }, 5000);
+            }
+        });
+    });
+    
+    // Auto-set today's date for delivery date when status is changed to delivered
+    const statusSelect = document.querySelector('select[name="value"]');
+    if (statusSelect) {
+        statusSelect.addEventListener('change', function() {
+            if (this.value === 'delivered') {
+                const deliveryDateInput = document.querySelector('input[type="date"][name="value"]');
+                if (deliveryDateInput && !deliveryDateInput.value) {
+                    const today = new Date().toISOString().split('T')[0];
+                    deliveryDateInput.value = today;
+                }
+            }
+        });
+    }
+    
+    // Validation for numeric inputs
+    const numberInputs = document.querySelectorAll('input[type="number"]');
+    numberInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            const value = parseFloat(this.value);
+            const min = parseFloat(this.min);
+            const max = parseFloat(this.max);
+            
+            if (value < min || value > max || isNaN(value)) {
+                this.classList.add('input-error');
+            } else {
+                this.classList.remove('input-error');
+            }
+        });
+    });
+});
+
+function clearDeliveryDate(form) {
+    const dateInput = form.querySelector('input[type="date"]');
+    dateInput.value = '';
+    
+    // Submit the form to clear the date
+    const hiddenInput = form.querySelector('input[name="field"]');
+    const valueInput = form.querySelector('input[name="value"]');
+    valueInput.value = 'none';
+    form.submit();
+}
+
+// Enhanced hover effects
+const editCards = document.querySelectorAll('.card-hover');
+editCards.forEach(card => {
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-4px) scale(1.02)';
+        this.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.2)';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0) scale(1)';
+        this.style.boxShadow = '';
+    });
+});
+</script>
+
+<style>
+.card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.input-error {
+    border-color: hsl(var(--er)) !important;
+    background-color: hsl(var(--er) / 0.1) !important;
+}
+
+.card-body {
+    position: relative;
+}
+
+.card-body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, hsl(var(--p)), hsl(var(--s)), hsl(var(--a)));
+    border-radius: 0.5rem 0.5rem 0 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.card:hover .card-body::before {
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .grid {
+        gap: 1rem;
+    }
+}
+</style>
+{% endblock %}
