@@ -13,13 +13,6 @@ TechEX is a modern, single-repo app for tracking parcels and visualizing basic s
 
 ### Quick start (local)
 
-If you prefer Docker:
-```bash
-# from repo root
-docker build -f docker/Dockerfile -t techex-web .
-docker run -p 5000:5000 techex-web
-```
-
 - Python deps:
   ```bash
   cd web
@@ -36,6 +29,13 @@ docker run -p 5000:5000 techex-web
   # open http://localhost:5000
   ```
 
+### Quick start Docker: (Recommended)
+
+```bash
+# from repo root
+docker build -f docker/Dockerfile -t techex-web .
+docker run -p 5000:5000 techex-web
+```
 ### Deploy to AWS (ECR + ALB)
 Head to `aws/README.md` for the full guide.
 - The deployment script builds the image locally, pushes to **ECR**, and deploys a stack that pulls the image in an **Auto Scaling Group** behind an **ALB**.
